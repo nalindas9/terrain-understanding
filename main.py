@@ -6,9 +6,9 @@ from terrain_understanding import TerrainUnderstanding
 if __name__ == '__main__':
     # Load point cloud data
     point_cloud = PointCloud()
-    #point_cloud.loadPointCloud('dataset/grid_stairs.npy')
+    point_cloud.loadPointCloud('dataset/grid_stairs.npy')
     #point_cloud.loadPointCloud('dataset/grid_water.npy')
-    point_cloud.loadPointCloud('dataset/curb_w_grass.npy')
+    #point_cloud.loadPointCloud('dataset/curb_w_grass.npy')
     # Plot point cloud data
     point_cloud.plotPointCloud()
     # # Get point cloud data

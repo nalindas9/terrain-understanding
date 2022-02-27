@@ -1,7 +1,9 @@
+from turtle import color
 import numpy as np
 from sklearn.cluster import KMeans
 from matplotlib import pyplot as plt
 import scipy.linalg
+from matplotlib import cm
 
 class TerrainUnderstanding:
     """
@@ -57,17 +59,26 @@ class TerrainUnderstanding:
 
         print('min_x: {}, min_y: {}, max_x: {}, max_y: {}'.format(min_x, min_y, max_x, max_y))
         # Grid covering domain of data
-        X, Y = np.meshgrid(np.arange(min_x, max_x, 0.1), np.arange(min_y, max_y, 0.1))
-
+        X, Y = np.meshgrid(np.arange(min_x, max_x, 0.1), np.arange(min_y, max_y+0.1, 0.1))
+        X_flatten = X.flatten()
+        Y_flatten = Y.flatten()
         # Fit plane to cluster
         if order == 'linear':
             # Best fit linear plane
             A = np.c_[cluster[:, 0], cluster[:, 1], np.ones(cluster.shape[0])]
-            print('A: {}, A shape: {}'.format(A, np.shape(A)))
+            #print('A: {}, A shape: {}'.format(A, np.shape(A)))
             # Calculate the coefficients of the plane
             C,_,_,_ = scipy.linalg.lstsq(A, cluster[:, 2])
-            print('C: {}, C shape: {}'.format(C, np.shape(C)))
+            #print('C: {}, C shape: {}'.format(C, np.shape(C)))
             Z = C[0]*X + C[1]*Y + C[2]
+        elif order == 'quadratic':
+            # Best fit quadratic plane
+            A = np.c_[np.ones(cluster.shape[0]), cluster[:, :2], np.prod(cluster[:, :2], axis=1), cluster[:, :2]**2]
+            #print('A: {}, A shape: {}'.format(A, np.shape(A)))
+            # Calculate the coefficients of the plane
+            C,_,_,_ = scipy.linalg.lstsq(A, cluster[:, 2])
+            #print('C: {}, C shape: {}'.format(C, np.shape(C)))
+            Z = np.dot(np.c_[np.ones(X_flatten.shape), X_flatten, Y_flatten, X_flatten*Y_flatten, X_flatten**2, Y_flatten**2], C).reshape(X.shape)
                 
         return X, Y, Z
 
@@ -81,21 +92,25 @@ class TerrainUnderstanding:
         """
         # Run kmeans
         labels= self.kmeans()
-        print('labels: {}, labels shape: {}'.format(labels, np.shape(labels)))
+        #print('labels: {}, labels shape: {}'.format(labels, np.shape(labels)))
         # Get the clusters
         clusters = self.getClusters(labels)
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.gca(projection='3d')
         # Plot point and fitted surface for each cluster
         for cluster in clusters:
             # Find the best fit plane
-            X, Y, Z = self.bestFitPlane(cluster)
+            X, Y, Z = self.bestFitPlane(cluster, order='quadratic')
+            print('X: {}, X shape: {}'.format(X, np.shape(X)))
+            print('Y: {}, Y shape: {}'.format(Y, np.shape(Y)))
+            print('Z: {}, Z shape: {}'.format(Z, np.shape(Z)))
             # Convert cluster to numpy array
             cluster = np.array(cluster)
-            fig = plt.figure(figsize=(10, 10))
-            ax = fig.gca(projection='3d')
-            ax.plot_surface(X, Y, Z)
-            ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c='r', s=50)
+            # Plot the cluster
+            ax.plot_surface(X, Y, Z, color='blue')
+            ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c='r', s=20)
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
-            plt.show()
+        plt.show()
         return labels
