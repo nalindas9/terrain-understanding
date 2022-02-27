@@ -1,5 +1,5 @@
 matplotlib==3.3.4
 numpy==1.19.5
 richdem==0.3.4
-scikit_learn==1.0.2
+scikit_learn
 scipy==1.5.4
