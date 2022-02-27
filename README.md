@@ -2,7 +2,7 @@
 [![License:MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/nalindas9/terrain-understanding/blob/master/LICENSE)
 
 ## About
-Detects stairs using point cloud data - Kmeans Clustering and Quadratic Planar Fitting. Flat surface detected based on gradient.
+Detects stairs using point cloud data - Kmeans Clustering and Quadratic Planar Fitting. Flat surface detected based on gradient. Examples of point clouds of perception “edge cases.” The point cloud is collected with downward facing cameras on the quadruped robot looking at some terrain. The task is to present some proof of concept solutions for terrain understanding that can interpret the grated surfaces as “flat” steppable regions, and interpret the grass as not being a steppable surface (since the toes will sink past the top surface).
 
 ## Output
 
