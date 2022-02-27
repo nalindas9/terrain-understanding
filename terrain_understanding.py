@@ -1,9 +1,9 @@
-from turtle import color
 import numpy as np
 from sklearn.cluster import KMeans
 from matplotlib import pyplot as plt
 import scipy.linalg
 from matplotlib import cm
+import richdem as rd
 
 class TerrainUnderstanding:
     """
@@ -17,8 +17,8 @@ class TerrainUnderstanding:
         Cluster the points
         :return: List of labels
         """
-        K = 4
-        N = 4
+        K = 6
+        N = 6
         MAX_ITERS = 100
         kmeans = KMeans(n_clusters=K, 
                         max_iter=MAX_ITERS, 
@@ -82,6 +82,23 @@ class TerrainUnderstanding:
                 
         return X, Y, Z
 
+    def checkFlatSurface(self, X: np.ndarray, Y: np.ndarray, Z: np.ndarray) -> bool:
+        """
+        Check if the surface is flat
+        :param clusters: List of clusters
+        :return: True if flat, False otherwise
+        """
+        # Calculate gradient
+        Z_flatten = Z.flatten()
+        grad_z = np.gradient(Z_flatten)
+        print('grad_z: {}, grad_z shape: {}'.format(grad_z, np.shape(grad_z)))
+        # Check if the magnitude of the gradient is less than 0.1
+        print('np.max(np.abs(grad_z)):', np.max(np.abs(grad_z)))
+        if np.max(np.abs(grad_z)) < 0.02:
+            return True
+        else:
+            return False
+
     def findSteppableTerrain(self) -> tuple:
         """
         Find the steppable points
@@ -106,9 +123,16 @@ class TerrainUnderstanding:
             print('Z: {}, Z shape: {}'.format(Z, np.shape(Z)))
             # Convert cluster to numpy array
             cluster = np.array(cluster)
-            # Plot the cluster
-            ax.plot_surface(X, Y, Z, color='blue')
-            ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c='r', s=20)
+            self.checkFlatSurface(X, Y, Z)
+            # Check if the surface is flat
+            if self.checkFlatSurface(X, Y, Z):
+                # Plot the cluster
+                ax.plot_surface(X, Y, Z, color='green')
+                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c='b', s=20)
+            else:
+                ax.plot_surface(X, Y, Z, color='red')
+                ax.scatter(cluster[:, 0], cluster[:, 1], cluster[:, 2], c='b', s=20)
+
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
