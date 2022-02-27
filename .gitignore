@@ -1,0 +1,6 @@
+# Ignore dataset folder
+dataset/
+# Ignore __pycache__ folder
+__pycache__/
+# Ignore env folder
+env/
