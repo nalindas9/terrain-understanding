@@ -62,7 +62,7 @@ class PointCloud:
             ax.set_ylabel('Y axis')
             ax.set_zlabel('Z axis')
         plt.show()
-
+    
     def getPointCloud(self) -> tuple:
         """
         Get point cloud data

@@ -19,7 +19,7 @@ class TerrainUnderstanding:
         """
         K = 6
         N = 6
-        MAX_ITERS = 100
+        MAX_ITERS = 200
         kmeans = KMeans(n_clusters=K, 
                         max_iter=MAX_ITERS, 
                         n_init=N).fit(self._raw_point_cloud)
@@ -56,8 +56,6 @@ class TerrainUnderstanding:
         # Find maximum x and y values
         max_x = np.max(cluster[:, 0])
         max_y = np.max(cluster[:, 1])
-
-        print('min_x: {}, min_y: {}, max_x: {}, max_y: {}'.format(min_x, min_y, max_x, max_y))
         # Grid covering domain of data
         X, Y = np.meshgrid(np.arange(min_x, max_x, 0.1), np.arange(min_y, max_y+0.1, 0.1))
         X_flatten = X.flatten()
@@ -66,19 +64,24 @@ class TerrainUnderstanding:
         if order == 'linear':
             # Best fit linear plane
             A = np.c_[cluster[:, 0], cluster[:, 1], np.ones(cluster.shape[0])]
-            #print('A: {}, A shape: {}'.format(A, np.shape(A)))
             # Calculate the coefficients of the plane
             C,_,_,_ = scipy.linalg.lstsq(A, cluster[:, 2])
-            #print('C: {}, C shape: {}'.format(C, np.shape(C)))
             Z = C[0]*X + C[1]*Y + C[2]
         elif order == 'quadratic':
             # Best fit quadratic plane
-            A = np.c_[np.ones(cluster.shape[0]), cluster[:, :2], np.prod(cluster[:, :2], axis=1), cluster[:, :2]**2]
-            #print('A: {}, A shape: {}'.format(A, np.shape(A)))
+            A = np.c_[np.ones(cluster.shape[0]), 
+                      cluster[:, :2], 
+                      np.prod(cluster[:, :2], axis=1), 
+                      cluster[:, :2]**2]
             # Calculate the coefficients of the plane
             C,_,_,_ = scipy.linalg.lstsq(A, cluster[:, 2])
-            #print('C: {}, C shape: {}'.format(C, np.shape(C)))
-            Z = np.dot(np.c_[np.ones(X_flatten.shape), X_flatten, Y_flatten, X_flatten*Y_flatten, X_flatten**2, Y_flatten**2], C).reshape(X.shape)
+            Z = np.dot(np.c_[np.ones(X_flatten.shape), 
+                            X_flatten, 
+                            Y_flatten, 
+                            X_flatten*Y_flatten, 
+                            X_flatten**2, 
+                            Y_flatten**2], 
+                            C).reshape(X.shape)
                 
         return X, Y, Z
 
@@ -91,36 +94,25 @@ class TerrainUnderstanding:
         # Calculate gradient
         Z_flatten = Z.flatten()
         grad_z = np.gradient(Z_flatten)
-        print('grad_z: {}, grad_z shape: {}'.format(grad_z, np.shape(grad_z)))
         # Check if the magnitude of the gradient is less than 0.1
-        print('np.max(np.abs(grad_z)):', np.max(np.abs(grad_z)))
-        if np.max(np.abs(grad_z)) < 0.02:
+        MAX_GRADIENT = 0.017
+        if np.max(np.abs(grad_z)) < MAX_GRADIENT:
             return True
         else:
             return False
 
-    def findSteppableTerrain(self) -> tuple:
+    def plotSteppableTerrain(self, clusters: list) -> None:
         """
-        Find the steppable points
-        :param x: x coordinates
-        :param y: y coordinates
-        :param z: z coordinates
-        :return: Tuple of steppable points
-        """
-        # Run kmeans
-        labels= self.kmeans()
-        #print('labels: {}, labels shape: {}'.format(labels, np.shape(labels)))
-        # Get the clusters
-        clusters = self.getClusters(labels)
+        Plots the steppable terrain
+        :param clusters: List of clusters
+        :return: None
+        """  
         fig = plt.figure(figsize=(10, 10))
         ax = fig.gca(projection='3d')
         # Plot point and fitted surface for each cluster
         for cluster in clusters:
             # Find the best fit plane
             X, Y, Z = self.bestFitPlane(cluster, order='quadratic')
-            print('X: {}, X shape: {}'.format(X, np.shape(X)))
-            print('Y: {}, Y shape: {}'.format(Y, np.shape(Y)))
-            print('Z: {}, Z shape: {}'.format(Z, np.shape(Z)))
             # Convert cluster to numpy array
             cluster = np.array(cluster)
             self.checkFlatSurface(X, Y, Z)
@@ -137,4 +129,17 @@ class TerrainUnderstanding:
             ax.set_ylabel('Y')
             ax.set_zlabel('Z')
         plt.show()
-        return labels
+
+    def findSteppableTerrain(self) -> tuple:
+        """
+        Find the steppable points
+        :param x: x coordinates
+        :param y: y coordinates
+        :param z: z coordinates
+        :return: Tuple of steppable points
+        """
+        # Run kmeans
+        labels = self.kmeans()
+        # Get the clusters
+        clusters = self.getClusters(labels)
+        return labels, clusters
