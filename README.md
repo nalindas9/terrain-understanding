@@ -2,7 +2,7 @@
 [![License:MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/nalindas9/terrain-understanding/blob/master/LICENSE)
 
 ## About
-Detects stairs using point cloud data - Kmeans Clustering and Planar Fitting. Flat surface detected based on gradient.
+Detects stairs using point cloud data - Kmeans Clustering and Quadratic Planar Fitting. Flat surface detected based on gradient.
 
 ## Output
 
