@@ -8,6 +8,8 @@ Detects stairs using point cloud data - Kmeans Clustering and Quadratic Planar F
 
 https://user-images.githubusercontent.com/44141068/155874752-66320811-1e65-4c0e-9387-ee19d74e037e.mp4
 
+## Method
+[Terrain_Understanding_Nalin.pdf](https://github.com/nalindas9/terrain-understanding/files/8164107/Terrain_Understanding_Nalin.pdf)
 
 ## System and library requirements.
  - Python3
