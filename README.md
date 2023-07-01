@@ -26,4 +26,4 @@ https://user-images.githubusercontent.com/44141068/155874752-66320811-1e65-4c0e-
 4. Install requirements.txt using command `pip install -r requirements.txt`
 5. To run the code, from the terminal, run the command `python3 main.py` <br>
 6. You should see plots similar to the given examples above. 
-7. Voila! Green is steppable, red is not steppable
+7. Voila! Green is steppable, red is not steppable.
